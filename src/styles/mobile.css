@@ -1,0 +1,137 @@
+/**
+ * mobile.css — the baseline every game needs to feel like an app on a phone.
+ *
+ * Imported FIRST, before the game's own stylesheet, so a game can still override
+ * any single rule.
+ *
+ * The headline: `<meta name="viewport" content="user-scalable=no">` DOES NOT
+ * WORK. iOS Safari has deliberately ignored it since iOS 10 for accessibility,
+ * so a double-tap still zooms and wrecks a live game. Blocking zoom takes
+ * `touch-action` here plus the gesture guard in engine/mobile.ts. Keep both;
+ * neither is sufficient alone.
+ */
+
+:root {
+  /* Real viewport height, kept accurate by engine/mobile.ts. Use
+     `height: calc(var(--vh) * 100)` rather than `100vh`, which on mobile
+     measures the viewport WITHOUT the collapsing URL bar and cuts the page off.
+     The 1vh fallback matters: it keeps layouts correct before the first
+     measurement, and if JS never runs at all. */
+  --vh: 1vh;
+}
+
+/* The `hidden` attribute must always win. A class that sets `display` on the
+   same element silently defeats the UA rule in Safari, leaving an invisible
+   blur/dim layer on top that eats every tap. */
+[hidden] {
+  display: none !important;
+}
+
+html {
+  /* Stop iOS inflating text on rotate and blowing up the layout mid-game. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* No rubber-band / pull-to-refresh yanking the page while dragging a card. */
+  overscroll-behavior: none;
+  /* Fills the notch/rounded corners rather than letterboxing to white. */
+  background-color: var(--bg, #0a1622);
+}
+
+html,
+body {
+  /* `manipulation` disables DOUBLE-TAP ZOOM (and the legacy 300ms click delay)
+     everywhere, which the viewport meta cannot do on iOS. Elements that need raw
+     pointer streams override this with `touch-action: none`. */
+  touch-action: manipulation;
+  /* A stray horizontal scroll on a phone reads as "the page is broken". */
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+body {
+  /* Kill the grey flash Android paints over every tap. */
+  -webkit-tap-highlight-color: transparent;
+  /* Long-press must not raise a text-selection callout mid-game. */
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+}
+
+/* Text the player may legitimately want to select or copy — an invite link,
+   a room code — has to opt back in. */
+input,
+textarea,
+[contenteditable],
+.selectable {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+button,
+[role='button'],
+a,
+label,
+summary {
+  touch-action: manipulation;
+}
+
+button,
+input,
+select,
+textarea {
+  /* iOS zooms the viewport on focus if a field's font is under 16px. */
+  font-family: inherit;
+  font-size: inherit;
+}
+
+input,
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
+
+/* Touch targets. 44px is Apple's floor and roughly where mis-taps stop. */
+button,
+[role='button'] {
+  min-height: 44px;
+  min-width: 44px;
+  cursor: pointer;
+}
+
+/* A drag/paint surface must own its gestures completely, or the browser steals
+   the stroke to scroll the page. */
+.board,
+.field,
+canvas,
+.drag-surface {
+  touch-action: none;
+}
+
+/* While a round is being played, the attribution footer is noise — and on a
+   phone it steals a strip of the play area. Games add `playing` to <body> when a
+   round starts and remove it on the menu / results. */
+body.playing .site-footer {
+  display: none !important;
+}
+
+/* Insets so a HUD never hides under the notch, the Dynamic Island or the
+   home-indicator swipe strip. Needs `viewport-fit=cover` in the viewport meta. */
+.safe-inset {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

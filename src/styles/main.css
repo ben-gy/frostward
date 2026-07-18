@@ -1,0 +1,488 @@
+/**
+ * main.css — Frostward.
+ *
+ * A dark winter night, one bright cone of ice, warm points of light. Player
+ * colours are separable under deuteranopia and protanopia AND backed by a
+ * distinct glyph per seat, so colour is never the only channel carrying who
+ * owns what.
+ */
+
+:root {
+  --bg: #0a1622;
+  --bg-2: #0e1d2c;
+  --panel: #132638;
+  --line: #1d3448;
+  --ink: #e8f1f8;
+  --ink-dim: #8fa9bf;
+
+  --cell: #16283a;
+  --frost: #cfe8f5;
+  --frost-deep: #8fc4dd;
+  --ridge: #8b7d68;
+  --thaw: #fbbf24;
+  --threat: #3d6d8c;
+
+  --p0: #f59e0b;
+  --p1: #38bdf8;
+  --p2: #f472b6;
+  --p3: #e2e8f0;
+
+  --radius: 14px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Belt and braces over mobile.css. An overlay toggled with the `hidden`
+   attribute while a class also sets `display` stays VISIBLE on Safari, and a
+   transparent full-screen layer blurs the board and eats every tap. */
+[hidden] { display: none !important; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg));
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+#app {
+  min-height: 100vh;
+  min-height: calc(var(--vh) * 100);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.site-footer {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 14px 12px calc(14px + env(safe-area-inset-bottom));
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+.site-footer a { color: var(--frost-deep); }
+
+h1, h2, h3 { line-height: 1.15; margin: 0 0 8px; }
+.muted { color: var(--ink-dim); font-size: 0.9rem; }
+
+/* ── buttons ───────────────────────────────────────────────────────────── */
+
+.lobby-btn,
+.ghost-btn,
+.icon-btn,
+.seg-btn,
+.veer-btn {
+  font: inherit;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 12px 16px;
+  transition: transform 0.12s var(--ease), background 0.15s, border-color 0.15s;
+}
+.lobby-btn { width: 100%; font-weight: 650; }
+.lobby-btn.primary {
+  background: linear-gradient(180deg, #2f6c8e, #1f4d69);
+  border-color: #3d84ab;
+}
+.lobby-btn:active:not(:disabled),
+.ghost-btn:active { transform: translateY(1px) scale(0.99); }
+.lobby-btn:disabled, .card:disabled { opacity: 0.45; cursor: default; }
+.ghost-btn { background: transparent; border-color: transparent; color: var(--ink-dim); }
+.ghost-btn:hover { color: var(--ink); }
+.linkish {
+  background: none; border: 0; color: var(--frost-deep);
+  text-decoration: underline; padding: 4px 6px; font: inherit; min-height: 0; min-width: 0;
+}
+
+/* ── menu ──────────────────────────────────────────────────────────────── */
+
+.menu { display: flex; flex-direction: column; gap: 14px; justify-content: center; flex: 1; text-align: center; }
+.logo { font-size: clamp(2.4rem, 12vw, 3.6rem); letter-spacing: -0.03em; margin: 0; }
+.logo span { color: var(--frost-deep); }
+.tagline { color: var(--ink-dim); margin: 0 auto 8px; max-width: 34ch; }
+.menu-actions { display: flex; flex-direction: column; gap: 10px; }
+.menu-small { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.menu-name { color: var(--ink-dim); font-size: 0.85rem; margin: 0; }
+
+/* ── panels ────────────────────────────────────────────────────────────── */
+
+.panel, .room-entry, .lobby, .results {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.how { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.cards-help { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.cards-help li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.9rem; }
+.cards-help .card-glyph { font-size: 1.3rem; width: 1.6em; text-align: center; flex: none; }
+.text-input {
+  width: 100%; padding: 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--bg-2); color: var(--ink);
+}
+.name-form { display: flex; gap: 8px; }
+.name-form .lobby-btn { width: auto; flex: none; }
+
+/* ── mode picker ───────────────────────────────────────────────────────── */
+
+.modes { display: flex; flex-direction: column; gap: 8px; }
+.mode {
+  font: inherit; text-align: left; color: var(--ink);
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.mode.is-on { border-color: var(--frost-deep); background: #17364b; }
+.mode small { color: var(--ink-dim); font-size: 0.8rem; }
+.pick-label { margin: 0; font-size: 0.85rem; color: var(--ink-dim); }
+.lobby-modes { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.opt-label { font-size: 0.9rem; color: var(--ink-dim); }
+.seg { display: flex; gap: 4px; }
+.seg-btn { padding: 8px 12px; border-radius: 10px; min-width: 44px; }
+.seg-btn.is-on { background: #17364b; border-color: var(--frost-deep); }
+
+/* ── room entry + lobby ────────────────────────────────────────────────── */
+
+.re-title, .lobby-title { margin: 0; }
+.re-sub, .lobby-sub { color: var(--ink-dim); font-size: 0.9rem; margin: 0; }
+.re-divider { display: flex; align-items: center; gap: 10px; color: var(--ink-dim); font-size: 0.8rem; }
+.re-divider::before, .re-divider::after { content: ''; height: 1px; background: var(--line); flex: 1; }
+.re-join { display: flex; gap: 8px; }
+.re-input {
+  flex: 1; min-width: 0; padding: 12px; border-radius: 12px; letter-spacing: 0.18em;
+  text-transform: uppercase; border: 1px solid var(--line); background: var(--bg-2); color: var(--ink);
+}
+.re-go { width: auto; flex: none; }
+.re-error { color: var(--p0); font-size: 0.85rem; margin: 0; min-height: 1.2em; }
+
+.lobby-code { color: var(--frost); letter-spacing: 0.2em; }
+.lobby-invite { display: flex; gap: 8px; }
+.lobby-link {
+  flex: 1; min-width: 0; padding: 10px; border-radius: 12px; font-size: 0.8rem;
+  border: 1px solid var(--line); background: var(--bg-2); color: var(--ink-dim);
+}
+.lobby-share { width: auto; flex: none; }
+.lobby-players { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lobby-player { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-2); border-radius: 10px; }
+.lobby-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; }
+.lobby-dot.ready { background: #4ade80; }
+.lobby-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lobby-badge {
+  font-size: 0.65rem; letter-spacing: 0.08em; padding: 2px 6px; border-radius: 6px;
+  background: var(--line); color: var(--ink-dim);
+}
+.lobby-badge.ok { background: #14532d; color: #86efac; }
+.lobby-mode { margin: 0; font-size: 0.85rem; color: var(--frost-deep); }
+.lobby-actions { display: flex; flex-direction: column; gap: 8px; }
+.lobby-wait { display: flex; align-items: center; gap: 8px; color: var(--ink-dim); font-size: 0.9rem; margin: 0; }
+.lobby-searching { display: flex; align-items: center; gap: 10px; color: var(--ink-dim); font-size: 0.85rem; }
+.lobby-flash { min-height: 1.2em; font-size: 0.85rem; color: var(--frost-deep); opacity: 0; transition: opacity 0.2s; }
+.lobby-flash.show { opacity: 1; }
+
+.spinner {
+  width: 18px; height: 18px; flex: none; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--frost-deep);
+  animation: spin 0.85s linear infinite;
+}
+.spinner.sm { width: 13px; height: 13px; border-width: 2px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── the game ──────────────────────────────────────────────────────────── */
+
+.game { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; }
+
+.hud { display: flex; align-items: center; gap: 10px; }
+.gale { display: flex; align-items: center; gap: 8px; }
+.gale-dial {
+  width: 38px; height: 38px; border-radius: 50%; flex: none;
+  border: 1px solid var(--line); background: var(--bg-2);
+  display: grid; place-items: center;
+}
+.gale-arrow {
+  width: 0; height: 0; display: block;
+  border-left: 13px solid var(--frost);
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  transform-origin: 4px 50%;
+  /* You SEE the wind swing — the whole game is the arrow moving. */
+  transition: transform 0.26s var(--ease);
+}
+.gale-text, .turnbox { display: flex; flex-direction: column; line-height: 1.1; }
+.gale-text b, .turnbox b { font-size: 1.05rem; }
+.gale-sub, .turn-sub { color: var(--ink-dim); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.turnbox { margin-left: 4px; }
+.clockbox { margin-left: auto; font-variant-numeric: tabular-nums; }
+.clock { font-size: 1.05rem; color: var(--ink-dim); }
+.clock.urgent { color: var(--p0); }
+.icon-btn { width: 44px; height: 44px; padding: 0; font-size: 1.3rem; line-height: 1; }
+
+.notice {
+  margin: 0; font-size: 0.82rem; color: var(--thaw);
+  background: rgba(251, 191, 36, 0.1); border-radius: 8px; padding: 6px 10px;
+}
+
+.seats { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.seat {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 9px; font-size: 0.76rem;
+  min-width: 0; max-width: 100%;
+}
+.seat.is-self { border-color: var(--frost-deep); }
+.seat.is-out { opacity: 0.45; }
+.seat.is-locked { border-color: #4ade80; }
+.seat-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 8ch; }
+.seat-name small { color: var(--ink-dim); font-size: 0.85em; }
+.seat-tag { color: var(--ink-dim); font-size: 0.68rem; }
+.seat.is-locked .seat-tag { color: #4ade80; }
+.pips { display: inline-flex; gap: 2px; }
+.pip { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.pip.lit { background: currentColor; }
+.pip.worn { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+.pip.dark { background: var(--line); }
+
+.seat.s0, .res-row.s0 { color: var(--p0); }
+.seat.s1, .res-row.s1 { color: var(--p1); }
+.seat.s2, .res-row.s2 { color: var(--p2); }
+.seat.s3, .res-row.s3 { color: var(--p3); }
+.seat-name, .seat-tag { color: var(--ink); }
+.seat.is-out .seat-name { color: var(--ink-dim); }
+
+/* ── the board ─────────────────────────────────────────────────────────── */
+
+.board-wrap {
+  flex: 1 1 auto; min-height: 0; position: relative;
+  display: grid; place-items: center; padding: 2px;
+}
+
+/* On a phone the board BLEEDS past the content padding.
+   The HUD and the card tray keep their 12px inset — they are text and buttons —
+   but the board is a grid of hit targets, and on the 13-column Whiteout board
+   those 24px are the difference between a 26.7px cell and a 28.5px one. Pinned
+   by tests/layout.test.ts, which does that arithmetic explicitly. */
+@media (max-width: 480px) {
+  .board-wrap { margin-inline: -12px; }
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  /* Capped by HEIGHT as well as width, so a short screen can never push the
+     card tray off the bottom and a desktop never gets an absurd board. */
+  width: min(100%, calc(var(--vh) * 52), 520px);
+  aspect-ratio: 1 / 1;
+  max-height: 100%;
+  gap: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-2);
+  touch-action: none;
+}
+
+/* No gap: the BUTTON is the full cell pitch and the visible tile is inset, so
+   the hit target stays >=28px on the 13x13 board at 375px. Hit size is
+   independent of art size — expand the target, not the tile. */
+.cell {
+  all: unset;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  min-width: 0;
+  padding: 1px;
+  background-clip: content-box;
+  background-color: var(--cell);
+  position: relative;
+  cursor: default;
+  transition: background-color 0.22s var(--ease);
+}
+.cell.frost { background-color: var(--frost); }
+.cell.ridge { background-color: var(--ridge); }
+.cell.warm { background-color: #3a2f1c; }
+.cell.threat:not(.frost):not(.ridge) {
+  background-color: var(--threat);
+}
+
+/* A hearth is a coloured ring with the seat's own glyph inside — colour plus
+   shape, so it reads without colour vision. */
+.cell.hearth::after {
+  content: '';
+  position: absolute;
+  inset: 15%;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px 1px currentColor;
+}
+.cell.hearth.s0 { color: var(--p0); }
+.cell.hearth.s1 { color: var(--p1); }
+.cell.hearth.s2 { color: var(--p2); }
+.cell.hearth.s3 { color: var(--p3); }
+.cell.hearth.worn::after { background: transparent; box-shadow: inset 0 0 0 2px currentColor; }
+.cell.hearth.dark::after { background: #2a3a49; box-shadow: none; opacity: 0.7; }
+
+.board.picking .cell.legal { cursor: pointer; }
+.cell.legal::before {
+  content: '';
+  position: absolute; inset: 2px;
+  border: 1.5px dashed var(--frost);
+  border-radius: 4px;
+  opacity: 0.75;
+}
+.cell.pop { animation: pop 0.34s var(--ease); }
+.cell.melt { animation: melt 0.4s var(--ease); }
+@keyframes pop { from { transform: scale(0.55); } to { transform: scale(1); } }
+@keyframes melt { from { background-color: var(--thaw); } }
+
+.fx-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.mote {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--frost); margin: -2.5px 0 0 -2.5px;
+  animation: mote var(--ms, 600ms) var(--ease) forwards;
+}
+@keyframes mote {
+  from { transform: translate(0, 0) scale(1); opacity: 0.95; }
+  to { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+.fx-shake { animation: shakeit 0.32s ease-in-out; }
+@keyframes shakeit {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(calc(var(--shake) * -1), var(--shake)); }
+  45% { transform: translate(var(--shake), calc(var(--shake) * -0.6)); }
+  70% { transform: translate(calc(var(--shake) * -0.5), 0); }
+}
+.fx-flash { outline: 2px solid var(--frost); outline-offset: 2px; }
+
+/* ── the hand ──────────────────────────────────────────────────────────── */
+
+.tray { flex: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: env(safe-area-inset-bottom); }
+.tray-hint { margin: 0; text-align: center; font-size: 0.85rem; color: var(--ink-dim); min-height: 1.2em; }
+
+.hand { display: flex; gap: 8px; justify-content: safe center; }
+.card {
+  font: inherit; color: var(--ink);
+  /* Capped: a flex-grow card with an aspect-ratio and no max-width balloons to
+     fill the row when its siblings are spent. */
+  flex: 1 1 0;
+  max-width: 108px;
+  min-width: 0;
+  aspect-ratio: 3 / 4;
+  max-height: 132px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: transform 0.15s var(--ease), border-color 0.15s, background 0.15s;
+}
+.card-glyph { font-size: 1.7rem; line-height: 1; }
+.card-name { font-size: 0.76rem; color: var(--ink-dim); }
+.card.is-selected { border-color: var(--frost); background: #1b3a4f; transform: translateY(-6px); }
+.card.is-dragging { opacity: 0.3; }
+.card-ghost {
+  position: fixed; left: 0; top: 0; z-index: 60; width: 68px; height: 88px;
+  pointer-events: none; opacity: 0.9; border-color: var(--frost);
+}
+.card.k-veer .card-glyph { color: var(--frost); }
+.card.k-ridge .card-glyph { color: var(--ridge); }
+.card.k-thaw .card-glyph { color: var(--thaw); }
+.card.k-ember .card-glyph { color: var(--frost-deep); }
+.cards-help .k-veer .card-glyph { color: var(--frost); }
+.cards-help .k-ridge .card-glyph { color: var(--ridge); }
+.cards-help .k-thaw .card-glyph { color: var(--thaw); }
+.cards-help .k-ember .card-glyph { color: var(--frost-deep); }
+
+.veer-pad { display: flex; gap: 8px; }
+.veer-btn { flex: 1; font-weight: 650; font-size: 1rem; }
+
+/* ── countdown ─────────────────────────────────────────────────────────── */
+
+/* pointer-events:none is mandatory: this sits over the whole screen, and if a
+   stale one is ever left behind it must not be able to eat a tap. */
+.countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  font-size: clamp(3.5rem, 22vw, 7rem);
+  font-weight: 800;
+  color: var(--frost);
+  text-shadow: 0 4px 30px rgba(10, 22, 34, 0.9);
+}
+.countdown.go { font-size: clamp(2.2rem, 13vw, 4rem); letter-spacing: 0.1em; }
+.countdown.beat { animation: beat 0.45s var(--ease); }
+@keyframes beat {
+  from { transform: scale(1.5); opacity: 0; }
+  40% { opacity: 1; }
+  to { transform: scale(1); opacity: 0.9; }
+}
+
+/* ── modal ─────────────────────────────────────────────────────────────── */
+
+.modal {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(6, 14, 22, 0.82);
+  display: grid; place-items: center; padding: 18px;
+}
+.modal-card {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; width: 100%; max-width: 380px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.modal-card.scrolly { max-height: 80vh; overflow-y: auto; }
+
+/* ── results ───────────────────────────────────────────────────────────── */
+
+.res-head { text-align: center; }
+.res-title { margin: 0; font-size: 1.5rem; }
+.res-sub { margin: 4px 0 0; color: var(--ink-dim); }
+.res-meta { margin: 4px 0 0; font-size: 0.78rem; color: var(--ink-dim); text-transform: uppercase; letter-spacing: 0.08em; }
+.res-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.res-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+}
+.res-row.is-self { border-color: var(--frost-deep); }
+.res-row.won { background: #17364b; }
+.res-place { font-weight: 800; color: var(--ink-dim); min-width: 2.4em; }
+.res-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.res-name { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--ink); }
+.res-glyph { color: currentColor; }
+.res-name small { color: var(--ink-dim); }
+.res-tally { font-style: normal; font-size: 0.7rem; background: var(--line); color: var(--ink-dim); padding: 1px 6px; border-radius: 6px; }
+.res-stats { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.8rem; color: var(--ink-dim); }
+.res-spent { font-size: 0.76rem; color: var(--ink-dim); }
+.res-aim { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.res-aim small { font-size: 0.7rem; color: var(--ink-dim); }
+.aim-bar { display: block; height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.aim-bar i { display: block; height: 100%; background: var(--frost-deep); }
+.res-bench { margin: 0; font-size: 0.85rem; color: var(--frost-deep); text-align: center; }
+.res-waiting { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 0; font-size: 0.85rem; color: var(--ink-dim); }
+.res-actions { display: flex; flex-direction: column; gap: 8px; }
+
+@media (min-width: 560px) {
+  .menu-actions, .lobby-actions, .res-actions { flex-direction: row; flex-wrap: wrap; }
+  .menu-actions .lobby-btn, .lobby-actions .lobby-btn, .res-actions .lobby-btn { flex: 1 1 160px; width: auto; }
+  .modes { flex-direction: row; }
+  .mode { flex: 1 1 0; }
+}
