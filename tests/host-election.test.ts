@@ -20,7 +20,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Net } from '../src/engine/net';
+import type { Net } from '@ben-gy/game-engine/net';
 
 interface Wire {
   peers: Map<string, Room>;
@@ -96,7 +96,7 @@ async function peer(id: string, opts: { claimHost?: boolean } = {}): Promise<Net
       return room;
     },
   }));
-  const mod = await import('../src/engine/net');
+  const mod = await import('@ben-gy/game-engine/net');
   return mod.createNet({ appId: 'frostward', roomId: 'R', claimHost: opts.claimHost });
 }
 
@@ -157,13 +157,17 @@ describe('host election — nobody hosts a mesh that has not formed', () => {
     const a = await peer('a');
     const b = await peer('b');
     connect('a', 'b');
-    vi.advanceTimersByTime(2600);
+    // SETTLE_MS is 6s, not the old 2.5s. The window was widened deliberately:
+    // Nostr discovery plus ICE on mobile routinely takes longer than 2.5s, so
+    // the old timer fired while a healthy host's announce was still in flight
+    // and let a joiner elect itself over a live room.
+    vi.advanceTimersByTime(6100);
     expect(a.isHost()).toBe(true);
     expect(b.isHost()).toBe(false);
     expect(b.host()).toBe('a');
   });
 
-  it('settles the creator immediately so "Create a room" is not a 2.5s wait', async () => {
+  it('settles the creator immediately so "Create a room" is not a 6s wait', async () => {
     const host = await peer('z', { claimHost: true });
     expect(host.hostSettled()).toBe(true);
     expect(host.isHost()).toBe(true);
@@ -233,7 +237,7 @@ describe('host election — handover happens only on leave', () => {
         return room;
       },
     }));
-    const mod = await import('../src/engine/net');
+    const mod = await import('@ben-gy/game-engine/net');
     const b = mod.createNet(
       { appId: 'frostward', roomId: 'R' },
       { onHostChange: (id, self) => changes.push([id, self]) },

@@ -116,7 +116,7 @@ describe('source hygiene', () => {
   });
 
   it('never leaves and rejoins a room — createNet is called exactly once', () => {
-    // The structural guard is engine/net.ts's registry, but keeping the call
+    // The structural guard is the engine net's join registry, but keeping the call
     // site singular is what makes the code obviously correct on inspection.
     const main = readFileSync('src/main.ts', 'utf8');
     expect(main.match(/createNet\(/g) ?? []).toHaveLength(1);

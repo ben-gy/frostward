@@ -17,19 +17,20 @@ mountFeedback();
 import './styles/mobile.css';
 import './styles/main.css';
 
-import { hardenViewport } from './engine/mobile';
-import { createStore } from './engine/storage';
-import { resolveName, withName } from './engine/identity';
-import { hashSeed, newSeed } from './engine/rng';
-import { createNet, type Net } from './engine/net';
-import { createRounds, type RoundInfo, type Rounds } from './engine/rematch';
+import { hardenViewport } from '@ben-gy/game-engine/mobile';
+import { createStore } from '@ben-gy/game-engine/storage';
+import { resolveName, withName } from '@ben-gy/game-engine/identity';
+import { hashSeed, newSeed } from '@ben-gy/game-engine/rng';
+import { createNet, roomAppId, setTurnConfig, type Net } from '@ben-gy/game-engine/net';
+import { getTurnConfig } from '@ben-gy/game-engine/turn';
+import { createRounds, type RoundInfo, type Rounds } from '@ben-gy/game-engine/rematch';
 import {
   clearRoomInUrl,
   createLobby,
   createRoomEntry,
-  roomFromUrl,
   setRoomInUrl,
-} from './engine/lobby';
+} from '@ben-gy/game-engine/lobby';
+import { roomFromUrl } from './room-link';
 import { startCountdown, type Countdown } from './countdown';
 import { createSfx } from './sound';
 import { clearFx } from './fx';
@@ -62,6 +63,25 @@ const store = createStore(APP_ID);
 const sfx = createSfx(store.get('muted', false));
 
 hardenViewport();
+
+/**
+ * TURN credentials, fetched ONCE at boot and installed globally.
+ *
+ * This has to happen before the first mesh on the page, not inside the join
+ * path, because Trystero pre-builds a single global pool of RTCPeerConnections
+ * from whichever joinRoom fires first — a later call would leave the initiating
+ * half of every pair STUN-only, which is invisible in a two-tab test on one
+ * Wi-Fi and fatal on carrier-grade NAT, where the data channel simply never
+ * opens and both players sit in the right room code looking at an empty lobby.
+ *
+ * `enterRoom` awaits this before `createNet`, because a `?room=` deep link joins
+ * within milliseconds of boot. The fetch is session-cached, capped at 3s, and
+ * resolves to [] on any failure, so the wait is nearly always zero and can never
+ * become a reason a player cannot join.
+ */
+const turnReady: Promise<void> = getTurnConfig()
+  .then(setTurnConfig)
+  .catch(() => setTurnConfig([]));
 
 let playerName = resolveName(store, () => `Warden ${Math.floor(Math.random() * 900 + 100)}`);
 let modeId = modeOf(store.get('mode', DEFAULT_MODE)).id;
@@ -365,24 +385,43 @@ function playWithFriends(): void {
     // into a room they have left.
     const code = deepLinkRoom;
     deepLinkRoom = null;
-    return enterRoom(code, false);
+    return void enterRoom(code, false);
   }
   if (net) return showLobby();
   clearScreen();
   entryView = createRoomEntry({
     container: screen,
-    onSubmit: (code, created) => enterRoom(code, created),
+    onSubmit: (code, created) => void enterRoom(code, created),
     onCancel: showMenu,
   });
 }
 
-function enterRoom(code: string, created: boolean): void {
+/** Guards the await below: two taps on "Join" must not join the room twice. */
+let entering = false;
+
+async function enterRoom(code: string, created: boolean): Promise<void> {
+  if (entering || net) return;
+  entering = true;
   roomCode = code;
   setRoomInUrl(code);
   clearScreen();
+  screen.innerHTML = `
+    <div class="lobby">
+      <div class="lobby-searching">
+        <span class="spinner" aria-hidden="true"></span><span>Opening the room…</span>
+      </div>
+    </div>`;
+  // See `turnReady`: the room's mesh must be the first one built on this page
+  // that carries TURN, or half of every pair silently connects STUN-only.
+  await turnReady;
+  entering = false;
+  clearScreen();
 
   net = createNet(
-    { appId: APP_ID, roomId: code, claimHost: created },
+    // roomAppId() stamps the protocol revision into the room name, so a build
+    // speaking an older protocol lands in a different room instead of joining
+    // this one and disagreeing about the rules.
+    { appId: roomAppId(APP_ID), roomId: code, claimHost: created },
     {
       onHostChange: (_id, isSelf) => {
         match?.setHost(isSelf);
@@ -460,11 +499,23 @@ function showLobby(): void {
   picker.className = 'lobby-modes';
   screen.appendChild(picker);
 
+  // The engine's lobby renders the roster and the invite; the mode is Frostward's
+  // own concern, so it lives here alongside the picker. The HOST sees the picker
+  // (its selection IS the answer to "what are we playing"); a GUEST sees the
+  // host's choice as gossiped, never its own menu setting — a mode decides the
+  // board size, so showing a guest their own would be a confident lie.
+  let pickerKey = '';
   const paintPicker = (): void => {
     const amHost = net!.isHost();
+    const id = amHost ? '' : hostModeId();
+    const key = `${amHost}|${amHost ? modeId : id}`;
+    if (key === pickerKey) return;
+    pickerKey = key;
     picker.innerHTML = amHost
       ? `<p class="pick-label">Your room, your rules</p>${modePicker(modeId, true)}`
-      : '';
+      : `<p class="lobby-mode">${
+          id ? esc(`Playing ${MODES[id].name} — ${MODES[id].blurb}`) : 'Waiting for the host…'
+        }</p>`;
     picker.querySelectorAll<HTMLElement>('.mode').forEach((b) => {
       b.addEventListener('click', () => {
         modeId = modeOf(b.dataset.mode).id;
@@ -484,10 +535,6 @@ function showLobby(): void {
     roomCode,
     minPlayers: 2,
     maxPlayers: MAX_PLAYERS,
-    modeLine: () => {
-      const id = hostModeId();
-      return id ? `Playing ${MODES[id].name} — ${MODES[id].blurb}` : 'Waiting for the host…';
-    },
     onCancel: () => void leaveRoom(),
   });
 

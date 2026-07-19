@@ -15,7 +15,7 @@
  *              A knife fight; the shortest turn cap of the three.
  *
  * The host's pick is what the room plays and it travels FROZEN inside the round
- * start (see engine/rematch.ts `roundOpts`), because a mode that changes the
+ * start (see @ben-gy/game-engine/rematch `roundOpts`), because a mode that changes the
  * board size means two peers reading their own menus would be playing different
  * games on the same seed.
  */

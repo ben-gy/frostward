@@ -12,7 +12,11 @@
  */
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { clearRoomInUrl, inviteLink, mintCode, normalizeRoomCode, roomFromUrl, setRoomInUrl } from '../src/engine/lobby';
+import { clearRoomInUrl, inviteLink, mintCode, normalizeRoomCode, setRoomInUrl } from '@ben-gy/game-engine/lobby';
+// The engine only ships getOrCreateRoomCode(), which MINTS when there is no
+// `?room=`. Frostward must not mint on page load, so it keeps its own read-only
+// reader over the engine's canonicalisation. See src/room-link.ts.
+import { roomFromUrl } from '../src/room-link';
 
 const at = (url: string): void => history.replaceState(null, '', url);
 

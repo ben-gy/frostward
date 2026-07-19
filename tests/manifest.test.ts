@@ -184,7 +184,10 @@ describe('the anti-zoom contract', () => {
   it('mobile.ts blocks the gestures the viewport meta cannot', () => {
     // iOS has ignored user-scalable=no since iOS 10; only cancelling the
     // proprietary gesture* events actually refuses a pinch.
-    const src = read('src/engine/mobile.ts');
+    // The viewport hardening is the engine's now, not a vendored copy — read it
+    // where it actually ships from, so the contract still fails loudly if a
+    // future engine release drops the gesture handlers.
+    const src = read('node_modules/@ben-gy/game-engine/src/mobile.ts');
     expect(src).toContain('gesturestart');
     expect(src).toContain('gesturechange');
     expect(src).toContain('passive: false');

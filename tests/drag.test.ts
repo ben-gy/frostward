@@ -10,7 +10,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { classifyRelease, type GestureThresholds } from '../src/engine/drag';
+import { classifyRelease, type GestureThresholds } from '@ben-gy/game-engine/drag';
 
 const T: GestureThresholds = { tapSlop: 3, swipeDist: 50, swipeVel: 0.5, swipeMaxMs: 250 };
 
