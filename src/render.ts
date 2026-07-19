@@ -28,7 +28,7 @@ import {
   type State,
   type TurnLog,
 } from './game';
-import { makeDraggable, type Draggable } from './engine/drag';
+import { makeDraggable, type Draggable } from '@ben-gy/game-engine/drag';
 import { burst, shake } from './fx';
 import type { Sfx, SfxName } from './sound';
 

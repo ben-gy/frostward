@@ -36,7 +36,7 @@ import {
   type State,
   type TurnLog,
 } from './game';
-import { makeRng, type Rng } from './engine/rng';
+import { makeRng, type Rng } from '@ben-gy/game-engine/rng';
 
 export interface RosterEntry {
   /** Peer id, or '' for a seat that is played by the bot. */

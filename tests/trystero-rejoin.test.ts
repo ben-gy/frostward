@@ -5,7 +5,7 @@
  * the "we're both the host and can't see each other" bug, so that:
  *   a) the hazard is executable fact, not folklore in a comment;
  *   b) an `npm update trystero` that changes it turns this red and makes someone
- *      re-read engine/net.ts before shipping.
+ *      re-read the engine's net.ts before shipping.
  *
  * The bug, in one line: joinRoom is memoized on appId+roomId, but leave() is
  * async and defers teardown ~99ms — so leave-then-rejoin in the same tick hands

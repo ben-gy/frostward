@@ -22,7 +22,7 @@ import {
   type Seat,
   type State,
 } from '../src/game';
-import { makeRng } from '../src/engine/rng';
+import { makeRng } from '@ben-gy/game-engine/rng';
 import { MODE_IDS } from '../src/modes';
 
 const seats = (n: number): Seat[] =>

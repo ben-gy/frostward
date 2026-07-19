@@ -11,7 +11,7 @@
  * it grows as a cone that sweeps as the wind swings.
  */
 
-import { makeRng, shuffle, type Rng } from './engine/rng';
+import { makeRng, shuffle, type Rng } from '@ben-gy/game-engine/rng';
 import { modeOf, type Mode } from './modes';
 
 // ── cells ───────────────────────────────────────────────────────────────────

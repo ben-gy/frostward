@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { hashSeed, makeRng, pick, randInt, shuffle } from '../src/engine/rng';
+import { hashSeed, makeRng, pick, randInt, shuffle } from '@ben-gy/game-engine/rng';
 import { createState, resolveTurn, standings, type Commit, type Seat } from '../src/game';
 import { MODE_IDS } from '../src/modes';
 import { playMatch } from '../src/sim';

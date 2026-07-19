@@ -2,7 +2,7 @@
  * net-lifecycle.test.ts — the tripwire.
  *
  * One invariant, asserted directly: a multiplayer session joins its room ONCE.
- * Every round after the first happens inside that room (see engine/rematch.ts).
+ * Every round after the first happens inside that room (see @ben-gy/game-engine/rematch).
  *
  * This is the test that would have caught the shipped leave/rejoin bug. It needs
  * no relay, no timing model and no browser — it just refuses to let the pattern
@@ -55,7 +55,7 @@ vi.mock('trystero', () => ({
   },
 }));
 
-const { createNet, netStats, resetNetStats } = await import('../src/engine/net');
+const { createNet, netStats, resetNetStats } = await import('@ben-gy/game-engine/net');
 
 const APP = 'frostward-lifecycle';
 
@@ -153,13 +153,19 @@ describe('createNet — channel fan-out', () => {
     await net.leave();
   });
 
-  it('keeps the rematch protocol on exactly three reserved names', () => {
-    // net.channel() fans out, so a game channel colliding with 'rv'/'rs'/'rq'
+  it('keeps the rematch protocol on exactly four reserved names', () => {
+    // net.channel() fans out, so a game channel colliding with a rematch name
     // would feed every message to both subsystems. Frostward's own channels are
-    // 'cmt', 'trn' and 'sync'; assert the engine still reserves exactly its three.
-    const src = readFileSync('src/engine/rematch.ts', 'utf8');
+    // 'cmt', 'trn', 'lok' and 'sync'; assert the engine still reserves exactly
+    // its own set and that ours stays disjoint from it.
+    //
+    // The set grew from three to four in engine v1.1.0: 'rk' acks a round start
+    // back to the host, which is what lets the host notice a peer whose data
+    // channel opened a beat late and re-send the start instead of leaving that
+    // player sitting in the lobby while everyone else plays.
+    const src = readFileSync('node_modules/@ben-gy/game-engine/src/rematch.ts', 'utf8');
     const reserved = [...src.matchAll(/net\.channel<[^>]*>\(\s*'([^']+)'/g)].map((m) => m[1]);
-    expect(reserved.sort()).toEqual(['rq', 'rs', 'rv']);
+    expect(reserved.sort()).toEqual(['rk', 'rq', 'rs', 'rv']);
     for (const c of reserved) expect(c.length).toBeLessThanOrEqual(12);
 
     const game = readFileSync('src/main.ts', 'utf8');

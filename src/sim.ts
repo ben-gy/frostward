@@ -11,7 +11,7 @@
 
 import { botCommit, type BotOpts } from './bot';
 import { createState, litCount, resolveTurn, type Rules, type Seat, type State } from './game';
-import { makeRng } from './engine/rng';
+import { makeRng } from '@ben-gy/game-engine/rng';
 
 export interface SimResult {
   seed: number;

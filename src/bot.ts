@@ -33,7 +33,7 @@ import {
   type Player,
   type State,
 } from './game';
-import type { Rng } from './engine/rng';
+import type { Rng } from '@ben-gy/game-engine/rng';
 
 export interface BotOpts {
   /** 0 = coldly consistent, ~6 = makes real mistakes. */

@@ -173,7 +173,17 @@ h1, h2, h3 { line-height: 1.15; margin: 0 0 8px; }
 .re-go { width: auto; flex: none; }
 .re-error { color: var(--p0); font-size: 0.85rem; margin: 0; min-height: 1.2em; }
 
-.lobby-code { color: var(--frost); letter-spacing: 0.2em; }
+/* mobile.css turns selection off body-wide so a long-press mid-game never
+   raises a text callout. The room code is the one thing on this screen a player
+   genuinely needs to select and copy, and it is a <span>, so it is not covered
+   by the `input` exemption the invite link gets. */
+.lobby-code {
+  color: var(--frost);
+  letter-spacing: 0.2em;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
 .lobby-invite { display: flex; gap: 8px; }
 .lobby-link {
   flex: 1; min-width: 0; padding: 10px; border-radius: 12px; font-size: 0.8rem;
