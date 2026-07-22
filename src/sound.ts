@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Ben Richardson — https://benrichardson.dev
+// Additional terms under AGPL-3.0 section 7(b) apply; see ADDITIONAL-TERMS.md.
 /**
  * sound.ts — procedural Web Audio, extended from patterns/sound.ts with the
  * noises this game actually needs. Zero asset files, so the bundle stays tiny

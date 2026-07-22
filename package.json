@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "A cone of frost sweeps the board like a searchlight — bend the wind away from your hearths and it points at someone else.",
+  "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
