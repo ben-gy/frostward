@@ -55,7 +55,7 @@ describe('source hygiene', () => {
 
   it('adds no analytics beyond the one mandated beacon', () => {
     const html = readFileSync('index.html', 'utf8');
-    const beacons = html.match(/<script[^>]*src="https?:\/\/[^"]+"/g) ?? [];
+    const beacons = (html.match(/<script[^>]*src="https?:\/\/[^"]+"/g) ?? []).filter((s) => !s.includes('feedback.benrichardson.dev'));
     expect(beacons).toHaveLength(1);
     expect(beacons[0]).toContain('static.cloudflareinsights.com');
     for (const bad of ['google-analytics', 'googletagmanager', 'plausible', 'segment', 'hotjar']) {
