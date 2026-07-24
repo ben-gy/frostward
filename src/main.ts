@@ -12,11 +12,6 @@
  * room object and leaves both players hosting an empty mesh.
  */
 
-// feedback:begin (managed by hub/scripts/feedback/backfill.mjs)
-import { mountFeedback } from './feedback';
-mountFeedback();
-// feedback:end
-
 import './styles/mobile.css';
 import './styles/main.css';
 
